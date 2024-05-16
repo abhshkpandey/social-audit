@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Audit Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h2 class="text-xl font-bold mb-4">Social Audit Tool</h2>
+        <!-- Section Selector -->
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Select Section:</label>
+            <select id="sectionSelector" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" onchange="loadSection()">
+                <option value="1">A - Child Labour</option>
+                <option value="2">B - Forced Labour</option>
+                <option value="3">C - Corporal Punishment, Harrassment & Abuse</option>
+                <option value="4">C1 - Discrimination</option>
+                <option value="5">D - Freedom of Association</option>
+                <option value="6">E - Ethics & Integrity </option>
+                <option value="7">F - Working Hours</option>
+                <option value="8">G - Wages & Benefits</option>
+                <option value="9">H - Legal Permits & Approvals</option>
+                <option value="10">I - Employment Contracts & Personal files</option>
+                <option value="11">J - Disciplinary & Grievance Procedures</option>
+                <option value="12">K - Health & Safety </option>
+                <option value="13">L - Facilities </option>
+                <option value="14">M - Chemicals & Enviornment</option>
+                <option value="15">N - Orientation & Training</option>
+                <option value="16">0 - Management Systems</option>
+                <option value="17">P - Sub Contracting</option>
+                <option value="18">Q - C-TPAT</option>
+                <!-- Add more options for other sections as needed -->
+            </select>
+        </div>
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <!-- Questions -->
+            <div class="mb-4" id="questions">
+                <!-- Dynamically Generated Questions and Inputs will go here -->
+            </div>
+            <!-- Submit Button -->
+            <div class="flex items-center justify-between">
+                <button onclick="submitForm()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                    Submit
+                </button>
+            </div>
+        </form>
+        <!-- Corrective Action Plan (CAP) Section -->
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 hidden" id="capSection">
+            <h2 class="text-lg font-bold mb-4">Corrective Action Plan (CAP)</h2>
+            <!-- Violations/Findings -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Violations/Findings:</label>
+                <div id="violationRemarks"></div>
+            </div>
+            <!-- Recommendations -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Recommendations:</label>
+                <textarea id="recommendations" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter recommendations"></textarea>
+            </div>
+            <!-- Target Completion Date -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Target Completion Date:</label>
+                <input type="date" id="completionDate" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <!-- Factory Agreed to Take Action -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Factory Agreed to Take Action (Y/N):</label>
+                <select id="factoryAgreed" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <!-- Reasons of Disagreement -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Reasons of Disagreement by Factory (if any):</label>
+                <textarea id="disagreementReason" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter reasons of disagreement"></textarea>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Define sections with their respective questions, options, and remarks
+        const sections = [
+            {
+                questions: [
+                    {
+                        text: "Does the factory has established and displayed anti child labour policy ?",
+                        options: ["Yes", "Partial", "No"]
+                    },
+                    {
+                        text: "Does the factory prohitbs hiring/engaging child labour under 15 completed years of age  ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "In the event a child labour is identified, does the factory has child remediation policy and procedures for smooth transition of such child labour to enable him/her to attend to and remain in quality education until he/she attains the minimum working age ?",
+                        options: ["Yes", "Partial", "No"]
+                    },
+                    {
+                        text: "Does the factory has a prohibits mistreatment of *Juvenile/Adolescent/Young workers and complies with all legal requirements ?",
+                        options: ["Yes", "Partial", "No"]
+                    },
+                    {
+                        text: "Does the factory keeps legal and reliable age proof documents for all workers including contracted, casual, temporary and Juvenile/Adolescent/Young workers etc.?",
+                        options: ["Yes", "Partial", "No"]
+                    },
+                    
+                    // Add more questions for Section 1 as needed
+                ],
+                remarks: [
+                    "It was noted during the factory tour and policies review, that the factory has not established and displayed anti child labour policy.",
+                    "It was noted during factory tour, the factory has engaged child labour under 15 completed years of age.It was noted during factory policies it was noted that factory does not prohibits and engage child labour under 15 completed years of age.",
+                    "It was noted during the Policies review that no established Child Remediation Policy, in the event a child labour is identified. In addition, no procedures established for smooth transition of such child labour to enable him/her to attend to and remain in quality education until he/she attains the minimum working age.",
+                    "It was noted during the Management Interview and Policies review, that the factory does not have a policy and procedure which prohibits mistreatment of *Juvenile/Adolescent/Young workers and complies with all legal requirements.Note: *Juvenile/Adolescent/Young worker means a person who has completed his fourteenth year but not completed his 18 years of age.",
+                    "It was noted during the documents review that the factory does not keeps legal and reliable age proof documents for all workers including contracted, casual, temporary and Juvenile/Adolescent/Young workers etc.",
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "The factory has established a forced labour policy ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory prohibits use of forced labour ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Are all workers work of their own free will ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "The factory or it's contractors do not withhold workers original identity/important documents such as National IDs, Passporst, Qualification Certificates or any other similar documents including financial deposits etc ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Is overtime work voluntary ? Does factory respect the workers right if they refuse to do  overtime work ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Are workers free to terminate their employment contract with reasonable notice period ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Do workers (permenent, contracted, mirgrant, temporary and casual) have to pay any recruitment or service fee towards hiring or placement ?  ",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Are workers free to go to toilets as and when they feel like ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Are workers free to go for drinking water as and when they feel like ?",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted during the documents review that the factory has not established a forced labour policy.",
+                    "It was noted during the Management review and Document review, the factory does not prohibits use of forced labour.",
+                    "It was noted during the workers interview, the workers do not work of their own free will. They are prohibited to use Toilets, Drinking Water and cannot Leave on their own will.",
+                    "It was noted from the workers interview, documents review and Management Interview, the factory or it's contractors withhold workers original identity/important documents such as National IDs, Passporst, Qualification Certificates or any other similar documents including financial deposits etc.",
+                    "It was noted from the workers interview, documents review and Management review , overtime work is compulsary and cannot be denied.",
+                    "It was noted from the workers interviews and documents review, the workers are not free to terminate their employment contract with reasonable notice period.",
+                    "It was noted from the workers interview, documents review and Management Interview, the  workers (permenent, contracted, mirgrant, temporary and casual) have to pay any recruitment or service fee towards hiring or placement.",
+                    "It was noted from the workers interview that the workers not free to go to toilets as and when they feel like.",
+                    "It was noted from the workers interview that the workers are not free to go for drinking water as and when they feel like."
+                    
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has a written policy prohibiting any form of physical, sexual, verbal, mental abuse and/or punishment ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory prohibites any form of physical, sexual, verbal, mental abuse and/or punishment ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory has a Internal Complaints Committee (ICC) under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013  and if so, are there regular meetings conduted and records maintained ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Has the factory educated all staff and workers what consistutes sexual harassments and panel consequences of the same ?",
+                        options: ["Yes", "No", "Partial", "Not Applicable"]
+                    },
+                    {
+                        text: "Factory prohibits mental and physical coercion ",
+                        options: ["Yes", "No","Partial"]
+                    },
+                    {
+                        text: "Workers are free from physical abuse and harrassment ",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted from the Management Interview and document review, the factory does not have a written policy prohibiting any form of physical, sexual, verbal, mental abuse and/or punishment.",
+                    "Default remark for question 2 in Section 2.",
+                    "It was noted that the factory doesnot have a Internal Complaints Committee (ICC) under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.It was noted that the factory does not conduct meetings under Internal Complaints Committee (ICC) under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.It was noted that the factory does not maintain records for meetings conducted under Internal Complaints Committee (ICC) under the Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013.",
+                    "It was noted from the training records and workers interview, all staff and workers were not trained  for the contents of policies and procedures for sexual harassments and consequences.",
+                    "It was noted from the workers interview, the factory doesnot prohibits mental and physical coercion.",
+                    "It was noted from the workers interview and factory tour, that workers were physically abuses and harrassed at work place."
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has an anti discrimination policy ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Workers are not subjected to any discrimination in hiring, compensation, training, promotion or discipline on the basis of gender, race, religion, age, disability, sexual orientation, pregnancy, marital status, nationality, political opinion, trade union affiliation, social or ethnic origin or any other status protected by country law.",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted during the factory tour and documents review, the factory does not have an anti discrimination policy.",
+                    "It was noted during the workers interview and documents review, the workers were not subjected to discrimination in hiring, compensation, training, promotion or discipline on the basis of gender, race, religion, age, disability, sexual orientation, pregnancy, marital status, nationality, political opinion, trade union affiliation, social or ethnic origin or any other status protected by country law.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has a written policy on freedom of association and the right to collective bargaining ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory has a union ? ",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "If no union , does the factory has a workers committee and workers representatives are democratically elected by the workers ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "The factory does not a collective bargaining agreement with union/workers committee ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory respects the workers right to form a union if they wish to or join an external union without any retaliation ? ",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "The factory does not interfere in any manner in day to day functioning of internal union ? ",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Is there any suggestion box through which workers can express their opionion to the management ? ",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are there any records to show that factory has handled workers concerns ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Was there any unrest situation including workers protest or strike in the factory in the last 3 years ?.*Note: Auditor to collect complete background of unrest situation or protest or strike and how that was fixed ?",
+                        options: ["Yes", "No"]
+                    }
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted during the Management interview and documents review, that the factory does not  have a written policy on freedom of association and the right to collective bargaining.",
+                    " ",
+                    " ",
+                    " ",
+                    "It was noted from the Management interview, that the factory does not respects the workers right to form a union if they wish to or join an external union without any retaliation.",
+                    "It was noted from the workers interviews that the factory regularly interferes in any manner in day to day functioning of internal union.",
+                    "It was noted from the factory tour and management interview  that suggestion box is not installed throughout the factory through which workers can express their opionion to the management.",
+                    "It was noted from the documents review that no records were available to show that factory has handled workers concerns raised by the workers.",
+                    " "
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has a policy on Ethics and Integrity and such policy is well documented and properly communicated to all staff and workers ? ",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Does the factory encourages staff and workers to report unethical and integrity issues and assures them that those shall be kept confidential ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Based on the Management and Workers Interview, is the factory free from any negative news/publicity reported in the print and electronic media in the last 3 years ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Does the factory to auditor provided full access to all factory areas,  showed all required records and allowed to conduct workers interviews privately ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "During the audit, there was no incident or attempt of bribery, corruption, fraud or unethical practices by the factory to the auditor ?",
+                        options: ["Yes", "No"]
+                    }
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted from the Management interview and documents review that the factory does not have a policy on Ethics and Integrity.It was noted from the documents review that Ethics and Integrity policy is not well documented and properly communicated to all staff and workers.",
+                    "It was noted from the workers interview and documents review, that the factory does not encourages staff and workers to report unethical and integrity issues and assures them that those shall be kept confidential.",
+                    "It was noted from the information received from external sources and cross checked by Management, factory was highlighted in negative news/publicity reported in the print and electronic media in the last 3 years.",
+                    "It was noted during the Management interview, the management have refused to provide full access to the audit for all factory areas,  required records and di not allow to conduct workers interviews privately.",
+                    "The Management/Management Representative attempted of offered bribes, involved in corrupt pracices, was fradualant and involved in unethical practices.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has a written policy on maximum daily & weekly normal & overtime working hours, number of working days a week, number of shifts, rest breaks, weekly rest day and also national and festival holidays to be observed ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "What type of time records maintained ?",
+                        options: ["Yes", "No", "Partial", "Not Applicable"]
+                    },
+                    {
+                        text: "Does the factory maintains last 12 months time records for all workers including contracted workers ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Does the factory has overtime exemption certificate from the Labour Department ?",
+                        options: ["Yes", "No", "Partial", "Not Applicable" ]
+                    },
+                    {
+                        text: "Does the time records reliable and consistent with other records ?",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Are the daily and weekly working hours (put together normal and overtime) within the legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Is the weekly off provided to all workers in accordance with the legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are rest breaks provided to all workers in accordance with the legal lrequirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Adult female workers are allowed to work only between 6 am and 7 pm.",
+                        options: ["Yes", "No", "Partial", "Not Applicable"]
+                    },
+                    {
+                        text: "Juvnile/Young/Adolosent female workers (if any) are allowed to work only between  8 am and 7 pm.",
+                        options: ["Yes", "No", "Partial", "Not Applicable"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted during the documents review, that the factory does not have has a written policy on maximum daily & weekly normal & overtime working hours, number of working days a week, number of shifts, rest breaks, weekly rest day and also national and festival holidays to be observed.",
+                    " ",
+                    "It was noted during the documents review that the factory does not maintains last 12 months time records for all workers including contracted workers.",
+                    "It was noted during the documents reiew, he factory has not obtained overtime exemption certificate from the Labour Department.",
+                    "It was noted during factory tour and documents review, the production records and payroll records were not reliable and consistent.",
+                    "It was noted during the document sreview, the the daily and weekly working hours (put together normal and overtime) were not within the legal requirements.",
+                    "It was noted during the payroll records that the weekly off provided to all workers were not in accordance with the legal requirements",
+                    "It was noted during the docments review it was noted that the rest breaks provided to all workers was not in accordance with the legal requirements.",
+                    "It was noted during the payroll records, adult female workers were allowed to work beyond the time limits of 6 am and 7 pm, which is not legally acceptable.",
+                    "It was noted during the documents review that juvnile/young/adolosent female workers (if any) were allowed to work beyond 8 am and 7 pm, which is not legally acceptable.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Does the factory has a written policy on wage including overtime premium rate and legal benefits ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Does the factory has Govt. issued legal minimum wage notification applicable in the last 12 months ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Does the factory maintains and preserved last 12 months payroll records for all workers including contracted workers ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Legal Overtime Premium Rate - During week days: 200% of wages - During weekly rest day: 200% of wages - During national/festival holidays: 200% of wages",
+                        options: ["Yes", "No", "Partial"] 
+                    },
+                    {
+                        text: "All workers including contracted, temporary, casuals, trainees and Juvnile/Young/Adolosent workers (if any) are compensated for all hours worked at-least at the legal minimum wage and overtime premium rate in accordance with the legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are piece rated workers (if any) are paid fairly as per appropriate piece rate and they earn at-least the applicable legal minimum wages as per skill classification ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are deductions made from wages according to legal requirements ?Legal deductions:- 0.75% of total monthly payable wage & overtime wage towards ESI (Health Insurance) - 12% of payable basic pay & DA (Dearness Allowance) towards social security (EPF). - INR 30 max. towards Labour welfare fund - Total deductions including advances and loans (if any) should not be more than 50% of payable wage",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Workers are not subjected to any financial penalty towards any disciplinary action or damage to any equipment provided to workers.",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all wage and overtime payments made through electronic transfers or through cheques issued to all respective workers ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are wage and overtime payments made within the specified time in accordance with the legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are detailed pay slips provided to all workers a day before disbursement of wages in the language they understand ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    
+                    {
+                        text: "Does the factory maintains and preserve legal benefits (Health Insurance (ESI), Social Security (EPF), Bonus and paid leave (Earned, Casual and Sick) record for last 12 months for all workers including contracted, temporary, casual, trainees and Juvnile/Young/Adolosent).",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all eligible workers provided with health insurance (ESI) benefit as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all eligible workers provided with social security (EPF & EPS) benefit as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Does the factory timely remitted Health Insurance (ESI) and Social Security (EPF & EPS) workers contributions together with their share with the respective Government Authority and have documentary evidence in support of that ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all eligible workers provided with Bonus Payment benefit as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all eligible workers provided with paid leave (EL, Casual, Sick) benefit as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are all eligible women workers provided with paid maternity leave benefit as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    {
+                        text: "Are workers upon seperation/termination of employment are paid timely their full and final due wage, overtime payment (if any), bonus, leave encashment and gratuity (as applicable) as per legal requirements ?",
+                        options: ["Yes", "No", "Partial"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "It was noted during the documents review, that  the factory does not have a written policy on wage including overtime premium rate and legal benefits.",
+                    "It was noted during the factory tour that the factory does not have Govt. issued legal minimum wage notification applicable in the last 12 months.",
+                    "It was noted during the Management interview and documents review that the factory does not maintains and preserved last 12 months payroll records for all workers including contracted workers.",
+                    " ",
+                    "It was noted during the documents review that all workers including contracted, temporary, casuals, trainees and Juvnile/Young/Adolosent workers (if any) are not compensated for all hours worked at-least at the legal minimum wage and overtime premium rate in accordance with the legal requirements.",
+                    "It was noted that all piece rated workers (if any) are not paid fairly as per appropriate piece rate and they earn at-least the applicable legal minimum wages as per skill classification.",
+                    "It was noted during the documents review that deductions made from wages are not according to legal requirements.Legal deductions: - 0.75% of total monthly payable wage & overtime wage towards ESI (Health Insurance) - 12% of payable basic pay & DA (Dearness Allowance) towards social security (EPF). - INR 30 max. towards Labour welfare fund - Total deductions including advances and loans (if any) should not be more than 50% of payable wage ",
+                    "It was noted during the workers interview and documents review that the workers are subjected to  financial penalty towards any disciplinary action or damage to any equipment provided to workers.",
+                    "It was noted during the documents review that all wage and overtime payments are not made through electronic transfers or through cheques issued to all respective workers.",
+                    "It was noted during the documents review that all wage and overtime payments are not made within the specified time in accordance with the legal requirements.",
+                    "It was noted during the documents review that detailed pay slips are not provided to all workers a day before disbursement of wages in the language they understand.",
+                    "It was noted from the documents review that the factory does not maintains and preserve legal benefits (Health Insurance (ESI), Social Security (EPF), Bonus and paid leave (Earned, Casual and Sick) record for last 12 months for all workers including contracted, temporary, casual, trainees and Juvnile/Young/Adolosent)",
+                    "It was noted from the documents review that not all eligible workers provided with health insurance (ESI) benefit as per legal requirements.",
+                    "It was noted from the documents review that all eligible workers were not provided with social security (EPF & EPS) benefit as per legal requirements.",
+                    "It was noted from the document review that the factory have not timely remitted Health Insurance (ESI) and Social Security (EPF & EPS) workers contributions together with their share with the respective Government Authority and have documentary evidence in support of that.",
+                    "It was noted from the documents review that all eligible workers were not provided with Bonus Payment benefit as per legal requirements.",
+                    "It was noted from the documents review that all eligible workers were not provided with paid leave (EL, Casual, Sick) benefit as per legal requirements.",
+                    "It was noted from the documents review that all eligible women workers were not provided with paid maternity leave benefit as per legal requirements.",
+                    "It was noted from the documents review that all workers upon seperation/termination of employment were not paid timely their full and final due wage, overtime payment (if any), bonus, leave encashment and gratuity (as applicable) as per legal requirements.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Factory license/business registration ",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Sanctioned floor layouot plans covering all floors in all buildings from Chief Inspector of Factories.",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Building stability certificate",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Fire Certificate/No Objection Certificate",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Generator Installation permit",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Petrolium products/Liquid gases storage approval (if any)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Registeration certificate under Contract Labour Act (if any)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Licenses issued to contractors under Contract Labour Act (if any)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Air & Water Pollution Consents",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Authorization of Hazardous Waste Management (if any)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Written contract with an accredited 3rd party for transportation and hazardous waste disposal.",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Water extraction permit",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Canteen/Kitchen Hygiene Certificate",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Boiler installation permit/inspection certificate",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Furnace installation permit/inspection certificate",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Generator Installation permit/inspection certificate (record)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Certified standing orders (if any)",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Noise test records covering last 12 months",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Air emission test records coveriing last 12 months",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Pressure vessels including hoist/lifts inspection",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Health check up records for canteen/kitchen workers and also those who are exposed to hazardous chemicals.",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Audio matrix check up for workers exposed to high noise level.",
+                        options: ["Yes", "No"]
+                    }
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            {
+                questions: [
+                    {
+                        text: "Question 1 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    {
+                        text: "Question 2 for Section 2",
+                        options: ["Yes", "No"]
+                    },
+                    // Add more questions for Section 2 as needed
+                ],
+                remarks: [
+                    "Default remark for question 1 in Section 2.",
+                    "Default remark for question 2 in Section 2.",
+                    // Add more remarks for Section 2 as needed
+                ]
+            },
+            // Add more sections with their questions, options, and remarks as needed
+        ];
+
+        const form = document.getElementById('questions');
+        const sectionSelector = document.getElementById('sectionSelector');
+        const capSection = document.getElementById('capSection');
+        const violationRemarks = document.getElementById('violationRemarks');
+
+        // Load questions for the selected section
+        function loadSection() {
+            const selectedSectionIndex = sectionSelector.value - 1;
+            const selectedSection = sections[selectedSectionIndex];
+            form.innerHTML = ""; // Clear previous questions
+
+            selectedSection.questions.forEach((question, index) => {
+                const questionId = `q${index + 1}`;
+                const inputId = `input_${questionId}`;
+                const textareaId = `textarea_${questionId}`;
+                const defaultRemark = selectedSection.remarks[index];
+
+                const optionsHTML = question.options.map(option => `
+                    <div>
+                        <input type="radio" id="${inputId}_${option.toLowerCase()}" name="${questionId}" value="${option}" onchange="toggleRemarksField(this)">
+                        <label for="${inputId}_${option.toLowerCase()}">${option}</label>
+                    </div>
+                `).join('');
+
+                const questionHTML = `
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">${index + 1}. ${question.text}</label>
+                        ${optionsHTML}
+                        <textarea id="${textareaId}" class="hidden mt-2 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Auditor Remarks" ${
+                    defaultRemark.includes('Please provide remarks') ? 'readonly' : ''
+                }>${defaultRemark}</textarea>
+                    </div>
+                `;
+                form.innerHTML += questionHTML;
+
+                // Make the remarks field editable if "Partial" option is selected
+                if (question.options.includes("Partial")) {
+                    document.getElementById(`${inputId}_partial`).addEventListener('change', function () {
+                        const remarksField = document.getElementById(textareaId);
+                        remarksField.readOnly = !this.checked;
+                        if (!this.checked) {
+                            remarksField.value = defaultRemark;
+                        }
+                        toggleRemarksField(this);
+                    });
+                }
+            });
+        }
+
+        // Initial load of questions for the first section
+        loadSection();
+
+        function toggleRemarksField(radioButton) {
+            const textareaId = radioButton.parentNode.nextElementSibling.id;
+            const remarksField = document.getElementById(textareaId);
+            remarksField.classList.toggle("hidden", radioButton.value === "Yes" || radioButton.value === "Not Applicable");
+            if (radioButton.value === "Partial" && !remarksField.readOnly) {
+                remarksField.focus();
+            }
+        }
+
+        function submitForm() {
+            const violations = [];
+            const recommendations = document.getElementById("recommendations").value.trim();
+            const completionDate = document.getElementById("completionDate").value;
+            const factoryAgreed = document.getElementById("factoryAgreed").value;
+            const disagreementReason = document.getElementById("disagreementReason").value.trim();
+
+            // Gather violations/findings and their remarks
+            sections.forEach(section => {
+                section.questions.forEach((question, index) => {
+                    const questionId = `q${index + 1}`;
+                    const radioButtons = document.getElementsByName(questionId);
+                    let selectedValue = null;
+                    radioButtons.forEach(button => {
+                        if (button.checked) {
+                            selectedValue = button.value;
+                            if (selectedValue === "No" || selectedValue === "Partial") {
+                                const remarks = document.getElementById(`textarea_${questionId}`).value.trim();
+                                violations.push({
+                                    question: question.text,
+                                    remarks: remarks
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Display violations/findings in CAP section
+            if (violations.length > 0) {
+                const violationHTML = violations.map(violation => `
+                    <div>
+                        <p class="font-bold">${violation.question}</p>
+                        <p>${violation.remarks}</p>
+                    </div>
+                `).join('');
+                violationRemarks.innerHTML = violationHTML;
+                capSection.classList.remove("hidden");
+            } else {
+                capSection.classList.add("hidden");
+            }
+
+            // Log other CAP fields
+            console.log("Recommendations:", recommendations);
+            console.log("Target Completion Date:", completionDate);
+            console.log("Factory Agreed to Take Action:", factoryAgreed);
+            console.log("Reasons of Disagreement by Factory:", disagreementReason);
+        }
+    </script>
+</body>
+
+</html>
